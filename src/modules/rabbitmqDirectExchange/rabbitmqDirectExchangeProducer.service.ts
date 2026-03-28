@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class RabbitmqDirectExchangeService {
+export class RabbitmqDirectExchangeProducerService {
   constructor() {}
 
   async initConnection() {}

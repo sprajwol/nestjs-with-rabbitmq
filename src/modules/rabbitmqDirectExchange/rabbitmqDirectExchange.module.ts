@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { RabbitmqDirectExchangeService } from './rabbitmqDirectExchange.service';
+import { RabbitmqDirectExchangeProducerService } from './rabbitmqDirectExchangeProducer.service';
 
 @Module({
-  providers: [RabbitmqDirectExchangeService]
+  providers: [RabbitmqDirectExchangeProducerService]
 })
 export class RabbitmqDirectExchangeModule {}
