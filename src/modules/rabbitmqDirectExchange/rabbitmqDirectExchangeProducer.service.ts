@@ -43,25 +43,16 @@ export class RabbitmqDirectExchangeProducerService {
       reconnectTimeInSeconds: 5, // Time to wait before trying to reconnect after a connection failure
     });
 
-    this.channelWrapper = this.connection.createChannel({
-      json: true,
-      setup: async (channel: ConfirmChannel) => {
-        await channel.assertExchange(this.rabbitmqDirectExchangeName, 'direct' , { durable: false });
-        await channel.assertQueue(this.rabbitmqDirectExchangeQueueName, { durable: false });
-        await channel.bindQueue(this.rabbitmqDirectExchangeQueueName, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
-      }
-    });
-
     this.connection.on('connect', () => {
       this.logger.log(`Connected to RabbitMQ.`);
     });
 
     this.connection.on('reconnect', (params) => {
-      this.logger.log(`Reconnected to RabbitMQ after ${params.delay} ms and ${params.attempt} attempts.`);
+      this.logger.warn(`Reconnecting to RabbitMQ after ${params.delay} ms and ${params.attempt} attempts.`);
     });
 
     this.connection.on('connectFailed', (error) => {
-      this.logger.error(`Failed to connect to RabbitMQ. ${error.err.message}`);
+      this.logger.error(`Failed to connect to RabbitMQ. Retrying... ${error.err.message}`);
     });
 
     this.connection.on('disconnect', (params) => {
@@ -74,6 +65,16 @@ export class RabbitmqDirectExchangeProducerService {
 
     this.connection.on('unblocked', () => {
       this.logger.log(`RabbitMQ connection unblocked.`);
+    });
+
+
+    this.channelWrapper = this.connection.createChannel({
+      json: true,
+      setup: async (channel: ConfirmChannel) => {
+        await channel.assertExchange(this.rabbitmqDirectExchangeName, 'direct' , { durable: false });
+        await channel.assertQueue(this.rabbitmqDirectExchangeQueueName, { durable: false });
+        await channel.bindQueue(this.rabbitmqDirectExchangeQueueName, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
+      }
     });
 
     this.channelWrapper.on('error', (error) => {
