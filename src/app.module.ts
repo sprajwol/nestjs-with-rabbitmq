@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RabbitmqDirectExchangeModule } from './modules/rabbitmqDirectExchange/rabbitmqDirectExchange.module';
+import { RabbitmqModule } from './common/integrations/rabbitmq/rabbitmq.module';
+import { DirectExchangeModule } from './modules/directExchange/directExchange.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    RabbitmqDirectExchangeModule,
+    RabbitmqModule,
+    DirectExchangeModule,
   ],
   controllers: [],
   providers: [],
