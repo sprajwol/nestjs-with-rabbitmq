@@ -1,33 +1,31 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  AmqpConnectionManager,
+  type AmqpConnectionManager,
   ChannelWrapper,
   connect,
 } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel } from 'amqplib';
+import { RABBITMQ_CONNECTION } from 'src/common/integrations/rabbitmq/rabbitmq.constants';
 
 @Injectable()
 export class DirectExchangeProducerService {
   // private connection: amqp.AmqpConnectionManager;
   // private channelModel: amqp.ChannelModel;
 
-  private connection: AmqpConnectionManager;
+  // private connection: AmqpConnectionManager;
   private channelWrapper: ChannelWrapper;
 
   private readonly logger = new Logger(DirectExchangeProducerService.name);
   
-  private readonly rabbitmqUrl: string; // RabbitMQ management URL
-  private readonly rabbitmqUsername: string; // RabbitMQ username
-  private readonly rabbitmqPassword: string; // RabbitMQ password
   private readonly rabbitmqDirectExchangeName: string; // RabbitMQ rabbitmqDirectExchangeName
   private readonly rabbitmqDirectExchangeQueueName: string; // RabbitMQ rabbitmqDirectExchangeQueueName
   private readonly rabbitmqDirectRoutingKey: string; // RabbitMQ rabbitmqDirectRoutingKey
 
-  constructor(private readonly configService: ConfigService) {
-    this.rabbitmqUrl = this.configService.getOrThrow<string>('RABBITMQ_AMQP_URL');
-    this.rabbitmqUsername =  this.configService.getOrThrow<string>('RABBITMQ_USERNAME');
-    this.rabbitmqPassword = this.configService.getOrThrow<string>('RABBITMQ_PASSWORD');
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(RABBITMQ_CONNECTION) private readonly connection: AmqpConnectionManager
+  ) {
     this.rabbitmqDirectExchangeName = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_NAME');
     this.rabbitmqDirectExchangeQueueName = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_QUEUE_NAME');
     this.rabbitmqDirectRoutingKey = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_ROUTING_KEY');
@@ -38,36 +36,6 @@ export class DirectExchangeProducerService {
   }
 
   async initConnection() {
-    this.connection = connect([this.rabbitmqUrl], {
-      heartbeatIntervalInSeconds: 5, // Heartbeat interval to check if the connection is alive
-      reconnectTimeInSeconds: 5, // Time to wait before trying to reconnect after a connection failure
-    });
-
-    this.connection.on('connect', () => {
-      this.logger.log(`Connected to RabbitMQ.`);
-    });
-
-    this.connection.on('reconnect', (params) => {
-      this.logger.warn(`Reconnecting to RabbitMQ after ${params.delay} ms and ${params.attempt} attempts.`);
-    });
-
-    this.connection.on('connectFailed', (error) => {
-      this.logger.error(`Failed to connect to RabbitMQ. Retrying... ${error.err.message}`);
-    });
-
-    this.connection.on('disconnect', (params) => {
-      this.logger.error(`Disconnected from RabbitMQ. ${params.err}`);
-    });
-
-    this.connection.on('blocked', (params) => {
-      this.logger.error(`RabbitMQ connection blocked. ${params.reason}`);
-    });
-
-    this.connection.on('unblocked', () => {
-      this.logger.log(`RabbitMQ connection unblocked.`);
-    });
-
-
     this.channelWrapper = this.connection.createChannel({
       json: true,
       setup: async (channel: ConfirmChannel) => {
