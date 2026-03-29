@@ -6,14 +6,13 @@ import {
 import { Channel, ConfirmChannel } from 'amqplib';
 import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
 
-export abstract class BaseProducer implements OnModuleInit, OnModuleDestroy {
+export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDestroy {
   protected channelWrapper: ChannelWrapper;
   // Each child class must provide its own logger instance with the correct context name.
-  protected readonly logger = Logger;
+  protected readonly logger: Logger;
 
   constructor(
-    @Inject(RABBITMQ_CONNECTION)
-    private readonly connection: AmqpConnectionManager,
+    @Inject(RABBITMQ_CONNECTION) protected readonly connection: AmqpConnectionManager,
   ) {}
 
   async onModuleInit() {
