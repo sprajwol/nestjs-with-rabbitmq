@@ -38,7 +38,10 @@ export class RabbitmqDirectExchangeProducerService {
   }
 
   async initConnection() {
-    this.connection = connect([this.rabbitmqUrl]);
+    this.connection = connect([this.rabbitmqUrl], {
+      heartbeatIntervalInSeconds: 5, // Heartbeat interval to check if the connection is alive
+      reconnectTimeInSeconds: 5, // Time to wait before trying to reconnect after a connection failure
+    });
 
     this.channelWrapper = this.connection.createChannel({
       json: true,
@@ -50,35 +53,43 @@ export class RabbitmqDirectExchangeProducerService {
     });
 
     this.connection.on('connect', () => {
-      this.logger.log('Connected to RabbitMQ');
+      this.logger.log(`Connected to RabbitMQ.`);
     });
 
     this.connection.on('reconnect', (params) => {
-      this.logger.log(`Reconnected to RabbitMQ after ${params.delay} ms and ${params.attempt} attempts`);
+      this.logger.log(`Reconnected to RabbitMQ after ${params.delay} ms and ${params.attempt} attempts.`);
     });
 
     this.connection.on('connectFailed', (error) => {
-      this.logger.error('Failed to connect to RabbitMQ', error.err.message);
+      this.logger.error(`Failed to connect to RabbitMQ. ${error.err.message}`);
     });
 
     this.connection.on('disconnect', (params) => {
-      this.logger.error('Disconnected from RabbitMQ', params.err);
+      this.logger.error(`Disconnected from RabbitMQ. ${params.err}`);
     });
 
     this.connection.on('blocked', (params) => {
-      this.logger.error('RabbitMQ connection blocked', params.reason);
+      this.logger.error(`RabbitMQ connection blocked. ${params.reason}`);
     });
 
     this.connection.on('unblocked', () => {
-      this.logger.error('RabbitMQ connection unblocked');
+      this.logger.error(`RabbitMQ connection unblocked.`);
     });
 
     this.channelWrapper.on('error', (error) => {
-      this.logger.error('Channel error', error);
+      this.logger.error(`Channel error. ${error}`);
     });
 
     this.channelWrapper.on('close', () => {
-      this.logger.error('Channel closed');
+      this.logger.error(`Channel closed.`);
+    });
+
+    this.channelWrapper.on('return', (msg) => {
+      this.logger.error(`Message Returned (Unroutable): ${JSON.stringify(msg)}`);
+    });
+
+    this.channelWrapper.on('drain', () => {
+      this.logger.error(`Channel drained.  Backpressure relieved, can resume sending messages.`);
     });
   }
 }
