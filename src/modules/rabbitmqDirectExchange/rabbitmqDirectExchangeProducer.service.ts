@@ -48,5 +48,37 @@ export class RabbitmqDirectExchangeProducerService {
         await channel.bindQueue(this.rabbitmqDirectExchangeQueueName, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
       }
     });
+
+    this.connection.on('connect', () => {
+      this.logger.log('Connected to RabbitMQ');
+    });
+
+    this.connection.on('reconnect', (params) => {
+      this.logger.log(`Reconnected to RabbitMQ after ${params.delay} ms and ${params.attempt} attempts`);
+    });
+
+    this.connection.on('connectFailed', (error) => {
+      this.logger.error('Failed to connect to RabbitMQ', error.err.message);
+    });
+
+    this.connection.on('disconnect', (params) => {
+      this.logger.error('Disconnected from RabbitMQ', params.err);
+    });
+
+    this.connection.on('blocked', (params) => {
+      this.logger.error('RabbitMQ connection blocked', params.reason);
+    });
+
+    this.connection.on('unblocked', () => {
+      this.logger.error('RabbitMQ connection unblocked');
+    });
+
+    this.channelWrapper.on('error', (error) => {
+      this.logger.error('Channel error', error);
+    });
+
+    this.channelWrapper.on('close', () => {
+      this.logger.error('Channel closed');
+    });
   }
 }
