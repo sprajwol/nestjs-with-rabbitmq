@@ -73,7 +73,7 @@ export class RabbitmqDirectExchangeProducerService {
     });
 
     this.connection.on('unblocked', () => {
-      this.logger.error(`RabbitMQ connection unblocked.`);
+      this.logger.log(`RabbitMQ connection unblocked.`);
     });
 
     this.channelWrapper.on('error', (error) => {
@@ -81,15 +81,15 @@ export class RabbitmqDirectExchangeProducerService {
     });
 
     this.channelWrapper.on('close', () => {
-      this.logger.error(`Channel closed.`);
+      this.logger.warn(`Channel closed.`);
     });
 
     this.channelWrapper.on('return', (msg) => {
-      this.logger.error(`Message Returned (Unroutable): ${JSON.stringify(msg)}`);
+      this.logger.warn(`Message Returned (Unroutable): ${JSON.stringify(msg)}`);
     });
 
     this.channelWrapper.on('drain', () => {
-      this.logger.error(`Channel drained.  Backpressure relieved, can resume sending messages.`);
+      this.logger.warn(`Channel drained.  Backpressure relieved, can resume sending messages.`);
     });
   }
 }
