@@ -1,4 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { RabbitmqConnectionProvider } from './rabbbitmq-connection.provider';
+import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
 
-@Module({})
+@Global()
+@Module({
+  providers: [RabbitmqConnectionProvider],
+  exports: [RABBITMQ_CONNECTION],
+})
 export class RabbitmqModule {}
