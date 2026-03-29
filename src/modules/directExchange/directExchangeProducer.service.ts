@@ -8,14 +8,14 @@ import {
 import { Channel, ConfirmChannel } from 'amqplib';
 
 @Injectable()
-export class RabbitmqDirectExchangeProducerService {
+export class DirectExchangeProducerService {
   // private connection: amqp.AmqpConnectionManager;
   // private channelModel: amqp.ChannelModel;
 
   private connection: AmqpConnectionManager;
   private channelWrapper: ChannelWrapper;
 
-  private readonly logger = new Logger(RabbitmqDirectExchangeProducerService.name);
+  private readonly logger = new Logger(DirectExchangeProducerService.name);
   
   private readonly rabbitmqUrl: string; // RabbitMQ management URL
   private readonly rabbitmqUsername: string; // RabbitMQ username
