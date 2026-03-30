@@ -48,14 +48,13 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
     }
   }
 
-  async publishToQueue(message: any) {
+  async publishToQueue(message: any, messageId: string) {
     if (!this.connection.isConnected()) {
       this.logger.error(`Cannot publish message. RabbitMQ is  not connected.`);
 
       throw new Error(`RabbitMQ connection is not established.`);
     }
 
-    const messageId = uuidv4();
     const timestamp = Date.now();
     try {
       const buffer = Buffer.from(JSON.stringify(message));
