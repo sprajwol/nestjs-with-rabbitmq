@@ -68,7 +68,8 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
         messageId: messageId,
         timestamp: timestamp,
         persistent: true,
-        mandatory: true
+        mandatory: true,
+        contentType: 'application/json',
       };
       
       await this.channelWrapper.publish(
@@ -77,6 +78,8 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
         buffer,
         publishOptions,
       );
+
+      this.logger.log(`Message with ID '${messageId}' has been published to exchange '${this.rabbitmqDirectExchangeName}' with routing key '${this.rabbitmqDirectRoutingKey}'.`);
     } catch (error) {
       this.logger.error(`Failed to publish message with ID ${messageId}: ${error}`);
 
