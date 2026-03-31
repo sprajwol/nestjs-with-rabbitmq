@@ -9,16 +9,20 @@ export class DirectExchangeService {
   constructor(private readonly producer: DirectExchangeProducerService) {}
 
   async fillupQueue(): Promise<void> {
-    const messageId = uuidv7();
+    try {
+      const messageId = uuidv7();
 
-    for (let i = 0; i < 20; i++) {
-      const message = {
-        id: i,
-        type: `direct-excchange-message${i}`,
-        content: `meessage for queue ${i}`,
-      };
+      for (let i = 0; i < 20; i++) {
+        const message = {
+          id: i,
+          type: `direct-excchange-message${i}`,
+          content: `meessage for queue ${i}`,
+        };
 
-      await this.producer.processMessage(message, messageId);
+        await this.producer.processMessage(message, messageId);
+      }
+    } catch (error) {
+      this.logger.error(`Error filling up the direct exchange queue: ${error}`);
     }
   }
 }
