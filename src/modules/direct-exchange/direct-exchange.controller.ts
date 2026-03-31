@@ -1,5 +1,5 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DirectExchangeService } from './direct-exchange.service';
 import { QueueTestConfigDto } from './dtos/queue-test-config.dto';
 
@@ -11,11 +11,12 @@ export class DirectExchangeController {
   constructor(private readonly service: DirectExchangeService) {}
 
   @ApiOperation({})
+  @ApiBody({ type: QueueTestConfigDto })
   @Post('publish')
   async fillQueue(
     @Body() queueTestConfigDto: QueueTestConfigDto
   ):Promise<void> {
-    this.logger.log('Adding messages to the direct exchange queue.');
+    this.logger.log('Adding messages to the direct exchange queue.\n', queueTestConfigDto);
     
     await this.service.fillupQueue(queueTestConfigDto);
   }

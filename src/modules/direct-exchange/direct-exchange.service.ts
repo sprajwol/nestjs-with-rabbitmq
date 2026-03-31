@@ -12,7 +12,7 @@ export class DirectExchangeService {
   async fillupQueue(queueTestConfigDto: QueueTestConfigDto): Promise<void> {
     try {
 
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < queueTestConfigDto.numberOfMessages; i++) {
         const messageId = uuidv7();
         const message = {
           id: i,

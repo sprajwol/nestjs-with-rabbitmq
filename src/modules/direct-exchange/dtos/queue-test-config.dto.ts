@@ -1,10 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsPositive } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber, IsPositive } from "class-validator";
 
 export class QueueTestConfigDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'The number of messages to populate the direct-exchange queue with.', example: 1 })
   @IsNotEmpty()
+  @IsInt()
   @IsPositive()
-  @IsNumber()
   numberOfMessages: number;
 }
