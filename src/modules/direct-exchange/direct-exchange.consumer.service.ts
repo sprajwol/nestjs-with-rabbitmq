@@ -49,7 +49,11 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
 
       await channel.prefetch(1);
 
-      await this.consumeFromQueue<QueuePayloadInterface>(channel, this.rabbitmqDirectExchangeQueueName, (data) => this.handleProcessingLogic(data));
+      await this.consumeFromQueue<QueuePayloadInterface>(
+        channel,
+        this.rabbitmqDirectExchangeQueueName,
+        (msgContent, msg) => this.handleProcessingLogic(msgContent, msg)
+      );
 
       this.logger.log(
         `
@@ -68,5 +72,11 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     }
   }
 
-  private async handleProcessingLogic(data: QueuePayloadInterface) {}
+  private async handleProcessingLogic(msgContent: QueuePayloadInterface, msg: ConsumeMessage) {}
+
+  protected async handleExhaustedRetries<QueuePayloadInterface>(
+    msgContent: QueuePayloadInterface,
+    msg: ConsumeMessage,
+    error: Error
+  ) {}
 }

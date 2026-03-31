@@ -56,15 +56,19 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   // 'abstract' keyword forces the child class to implement this method, ensuring that the necessary channel is properly setup up for each child instance producer to properly function.
   protected abstract setupChannel(channel: ConfirmChannel): Promise<void>;
 
+  // Child classes must implement the handleExhaustedRetries method to provide the logic for handling messages that have exhausted their retry attempts and are about to be moved to the DLQ.
+  protected abstract handleExhaustedRetries<T>(msgContent: T, msg: ConsumeMessage, error: Error): Promise<void>;
+
   protected async consume<T>(
     msg: ConsumeMessage | null,
     channel: ConfirmChannel,
-    onMessage: (data: T, raw: ConsumeMessage) => Promise<void>
+    onMessage: (msgContent: T, msg: ConsumeMessage) => Promise<void>
   ): Promise<void> {
     if (!msg) return;
 
     const { messageId, timestamp } = msg.properties;
     const  currentTimestamp = Date.now();
+    let msgContent: T | undefined;
 
     try {
       this.logger.log(`Received message with ID: ${messageId}, Timestamp: ${timestamp}, Current Timestamp: ${currentTimestamp}, Delay: ${currentTimestamp - timestamp}ms.`);
@@ -72,10 +76,10 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
       // Since  `json: true` is set in the channelWrapper options, the message content is automatically parsed from a Buffer to a JS object.
       // However, the type of `msg.content` is still `Buffer` in the type definitions, so casting it to `unknown` first allows to then cast it to the expected type `T` that the onMessage handler function will receive.
       // This provides type safety and autocompletion for the message content. 
-      const content = msg.content as unknown as T;
-
+      msgContent = msg.content as unknown as T;
+      
       // Excecuting the actual message handler function that handles the logic for processing the message from the queue passed in as a parameter from the child consumer class.
-      await onMessage(content, msg);
+      await onMessage(msgContent, msg);
 
       channel.ack(msg);
 
