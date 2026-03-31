@@ -69,7 +69,10 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     try {
       this.logger.log(`Received message with ID: ${messageId}, Timestamp: ${timestamp}, Current Timestamp: ${currentTimestamp}, Delay: ${currentTimestamp - timestamp}ms.`);
 
-      const content = JSON.parse(msg.content.toString()) as T;
+      // Since  `json: true` is set in the channelWrapper options, the message content is automatically parsed from a Buffer to a JS object.
+      // However, the type of `msg.content` is still `Buffer` in the type definitions, so casting it to `unknown` first allows to then cast it to the expected type `T` that the onMessage handler function will receive.
+      // This provides type safety and autocompletion for the message content. 
+      const content = msg.content as unknown as T;
 
       // Excecuting the actual message handler function that handles the logic for processing the message from the queue passed in as a parameter from the child consumer class.
       await onMessage(content, msg);
