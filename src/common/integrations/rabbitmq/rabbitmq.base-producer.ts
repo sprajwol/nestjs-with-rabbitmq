@@ -61,7 +61,7 @@ export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDest
   // 'abstract' keyword forces the child class to implement this method, ensuring that the necessary channel is properly setup up for each child instance producer to properly function.
   protected abstract setupChannel(channel: ConfirmChannel): Promise<void>;
 
-  protected async publishToQueue(message: any, messageId: string, exchangeName: string,  routingKey: string) {
+  protected async publishToQueue<T>(message: T, messageId: string, exchangeName: string,  routingKey: string) {
     if (!this.connection.isConnected()) {
       this.logger.error(`Cannot publish message. RabbitMQ is  not connected.`);
 

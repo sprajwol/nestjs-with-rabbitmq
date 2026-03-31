@@ -49,7 +49,7 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
   }
 
   async processMessage(message: QueuePayloadInterface, messageId: string) {
-    return await this.publishToQueue(message, messageId, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
+    return await this.publishToQueue<QueuePayloadInterface>(message, messageId, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
   }
 
 }
