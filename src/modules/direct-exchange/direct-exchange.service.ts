@@ -1,4 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
-export class DirectExchangeService {}
+export class DirectExchangeService {
+  protected readonly logger = new Logger(DirectExchangeService.name);
+
+  constructor() {}
+
+  async fillupQueue(): Promise<void> {
+
+  }
+}

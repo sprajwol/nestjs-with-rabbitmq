@@ -1,4 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { DirectExchangeService } from './direct-exchange.service';
 
+@ApiTags('Direct Exchange')
 @Controller('direct-exchange')
-export class DirectExchangeController {}
+export class DirectExchangeController {
+  protected readonly logger = new Logger(DirectExchangeController.name);
+
+  constructor(private readonly service: DirectExchangeService) {}
+
+  @Post('publish')
+  async fillQueue():Promise<void> {
+    this.logger.log('Adding messages to the direct exchange queue.');
+  }
+}
