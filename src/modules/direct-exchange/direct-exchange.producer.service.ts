@@ -5,6 +5,7 @@ import { Channel, ConfirmChannel, Options } from 'amqplib';
 import { RabbitmqBaseProducer } from 'src/common/integrations/rabbitmq/rabbitmq.base-producer';
 import { RABBITMQ_CONNECTION } from 'src/common/integrations/rabbitmq/rabbitmq.constants';
 import {v4 as uuidv4 } from 'uuid';
+import { QueuePayloadInterface } from './interfaces/queue-payload.interface';
 
 @Injectable()
 export class DirectExchangeProducerService extends RabbitmqBaseProducer {
@@ -48,7 +49,7 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
     }
   }
 
-  async processMessage(message: any, messageId: string) {
+  async processMessage(message: QueuePayloadInterface, messageId: string) {
     return await this.publishToQueue(message, messageId, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
   }
 
