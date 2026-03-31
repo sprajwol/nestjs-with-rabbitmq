@@ -94,30 +94,12 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   ) {
     return await channel.consume(
       queueName,
-      (msg) => {
-        this.consume(msg, channel, onMessage);
-      },
-      {
-        onCancel: (msg) => {
-          this.handleConsumerCancel(msg.consumerTag);
-        },
-      },
+      (msg) => this.consume(msg, channel, onMessage),
+      { onCancel: (msg) => this.handleConsumerCancel(msg.consumerTag) },
     );
   }
 
   protected handleConsumerCancel(consumerTag: string) {
-    this.logger.error(
-      `Consumer  '${consumerTag}' was cancelled by the  broker.`,
-    );
-
-    setTimeout(() => {
-      this.logger.warn(
-        `Reattempting to reinitialize consumer channel after cancellation ${this.constructor.name}, consumerTag: ${consumerTag}.`,
-      );
-
-      // this.channelWrapper.addSetup(async (channel: ConfirmChannel) => {
-      //   await this.setupChannel(channel);
-      // });
-    }, 5000);
+    this.logger.error(`Consumer  '${consumerTag}' was cancelled by the  broker.`);
   }
 }
