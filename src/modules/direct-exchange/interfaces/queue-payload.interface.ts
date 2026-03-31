@@ -1,4 +1,5 @@
 export interface QueuePayloadInterface {
-  productId: string;
-  newQuantity: number;
+  id: number,
+  type: string,
+  content: string,
 }
