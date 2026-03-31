@@ -8,7 +8,7 @@ import {v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class DirectExchangeProducerService extends RabbitmqBaseProducer {
-  protected readonly logger = new Logger(DirectExchangeProducerService.name);
+  protected readonly logger = new Logger(this.constructor.name);
 
   private readonly rabbitmqDirectExchangeName: string; // RabbitMQ rabbitmqDirectExchangeName
   private readonly rabbitmqDirectExchangeQueueName: string; // RabbitMQ rabbitmqDirectExchangeQueueName

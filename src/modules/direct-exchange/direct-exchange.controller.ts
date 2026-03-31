@@ -5,7 +5,7 @@ import { DirectExchangeService } from './direct-exchange.service';
 @ApiTags('Direct Exchange')
 @Controller('direct-exchange')
 export class DirectExchangeController {
-  protected readonly logger = new Logger(DirectExchangeController.name);
+  protected readonly logger = new Logger(this.constructor.name);
 
   constructor(private readonly service: DirectExchangeService) {}
 

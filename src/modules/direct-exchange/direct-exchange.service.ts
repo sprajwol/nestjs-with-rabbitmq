@@ -4,7 +4,7 @@ import { DirectExchangeProducerService } from './direct-exchange.producer.servic
 
 @Injectable()
 export class DirectExchangeService {
-  protected readonly logger = new Logger(DirectExchangeService.name);
+  protected readonly logger = new Logger(this.constructor.name);
 
   constructor(private readonly producer: DirectExchangeProducerService) {}
 
