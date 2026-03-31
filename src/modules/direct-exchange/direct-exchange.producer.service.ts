@@ -35,7 +35,7 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
         `
           Channel Setup Completed:
           Exchange '${this.rabbitmqDirectExchangeName}',
-          Type: 'direct'',
+          Type: 'direct',
           Queue: '${this.rabbitmqDirectExchangeQueueName}',
           RoutingKey: '${this.rabbitmqDirectRoutingKey}',
         `,
