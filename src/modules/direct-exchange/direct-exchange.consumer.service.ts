@@ -72,7 +72,9 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     }
   }
 
-  private async handleProcessingLogic(msgContent: QueuePayloadInterface, msg: ConsumeMessage) {}
+  private async handleProcessingLogic(msgContent: QueuePayloadInterface, msg: ConsumeMessage) {
+    await new Promise(resolve => setTimeout(resolve, 10000));
+  }
 
   protected async handleExhaustedRetries<QueuePayloadInterface>(
     msgContent: QueuePayloadInterface,
