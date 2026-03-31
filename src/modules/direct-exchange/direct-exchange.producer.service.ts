@@ -27,8 +27,8 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
 
   protected async setupChannel(channel: ConfirmChannel): Promise<void> {
     try {
-      await channel.assertExchange(this.rabbitmqDirectExchangeName, 'direct', { durable: false });
-      await channel.assertQueue(this.rabbitmqDirectExchangeQueueName, { durable: false });
+      await channel.assertExchange(this.rabbitmqDirectExchangeName, 'direct', { durable: true });
+      await channel.assertQueue(this.rabbitmqDirectExchangeQueueName, { durable: true });
       await channel.bindQueue( this.rabbitmqDirectExchangeQueueName, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
 
       this.logger.log(
