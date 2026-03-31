@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { type AmqpConnectionManager } from 'amqp-connection-manager';
-import { Channel, ConfirmChannel, Options } from 'amqplib';
+import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
 import { RabbitmqBaseConsumer } from "src/common/integrations/rabbitmq/rabbitmq.base-consumer";
 import { RABBITMQ_CONNECTION } from "src/common/integrations/rabbitmq/rabbitmq.constants";
 import { QueuePayloadInterface } from "./interfaces/queue-payload.interface";
