@@ -4,11 +4,7 @@ import { type AmqpConnectionManager } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, Options } from 'amqplib';
 import { RabbitmqBaseConsumer } from "src/common/integrations/rabbitmq/rabbitmq.base-consumer";
 import { RABBITMQ_CONNECTION } from "src/common/integrations/rabbitmq/rabbitmq.constants";
-
-interface RabbitMqMessagePayload {
-  productId: string;
-  newQuantity: number;
-}
+import { QueuePayloadInterface } from "./interfaces/queue-payload.interface";
 
 @Injectable()
 export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
@@ -37,7 +33,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
 
       await channel.prefetch(1);
 
-      await this.consumeFromQueue<RabbitMqMessagePayload>(channel, this.rabbitmqDirectExchangeQueueName, (data) => this.handleProcessingLogic(data));
+      await this.consumeFromQueue<QueuePayloadInterface>(channel, this.rabbitmqDirectExchangeQueueName, (data) => this.handleProcessingLogic(data));
 
       this.logger.log(
         `
@@ -56,5 +52,5 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     }
   }
 
-  private async handleProcessingLogic(data: RabbitMqMessagePayload) {}
+  private async handleProcessingLogic(data: QueuePayloadInterface) {}
 }
