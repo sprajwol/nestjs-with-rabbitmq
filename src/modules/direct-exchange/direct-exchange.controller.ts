@@ -13,5 +13,7 @@ export class DirectExchangeController {
   @Post('publish')
   async fillQueue():Promise<void> {
     this.logger.log('Adding messages to the direct exchange queue.');
+    
+    await this.service.fillupQueue();
   }
 }
