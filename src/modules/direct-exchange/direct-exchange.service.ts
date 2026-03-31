@@ -10,9 +10,9 @@ export class DirectExchangeService {
 
   async fillupQueue(): Promise<void> {
     try {
-      const messageId = uuidv7();
 
       for (let i = 0; i < 20; i++) {
+        const messageId = uuidv7();
         const message = {
           id: i,
           type: `direct-excchange-message${i}`,
