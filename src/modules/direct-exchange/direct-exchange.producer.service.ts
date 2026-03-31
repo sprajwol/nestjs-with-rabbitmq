@@ -48,42 +48,8 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
     }
   }
 
-  async publishToQueue(message: any, messageId: string) {
-    if (!this.connection.isConnected()) {
-      this.logger.error(`Cannot publish message. RabbitMQ is  not connected.`);
-
-      throw new Error(`RabbitMQ connection is not established.`);
-    }
-
-    const timestamp = Date.now();
-    try {
-      const buffer = Buffer.from(JSON.stringify(message));
-      //  `persistent: true` makes the message persistent(saved to disk) if true or non-persistent(stored to memory) if false.
-      //  Persistent messages survive broker(rabbitmq) restarts.
-      //  Needs 'exchange' and 'queue' also to be durable to ensure message persistence.
-
-      //  `mandatory: true` ensures that if a message cannot be routed to any queue (e.g. incorrect routing key), the message will be returned to the producer instead of being silently dropped.
-      //  This allows the producer to handle unroutable messages as needed (e.g. logging, retryiing, etc.) and prevent message loss due to misconfigurtation or other issues.
-      const publishOptions: Options.Publish = {
-        messageId: messageId,
-        timestamp: timestamp,
-        persistent: true,
-        mandatory: true,
-        contentType: 'application/json',
-      };
-      
-      await this.channelWrapper.publish(
-        this.rabbitmqDirectExchangeName,
-        this.rabbitmqDirectRoutingKey,
-        buffer,
-        publishOptions,
-      );
-
-      this.logger.log(`Message with ID '${messageId}' has been published to exchange '${this.rabbitmqDirectExchangeName}' with routing key '${this.rabbitmqDirectRoutingKey}'.`);
-    } catch (error) {
-      this.logger.error(`Failed to publish message with ID ${messageId}: ${error}`);
-
-      throw error;
-    }
+  async processMessage(message: any, messageId: string) {
+    return await this.publishToQueue(message, messageId, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
   }
+
 }
