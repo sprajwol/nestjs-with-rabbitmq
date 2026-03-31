@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { DirectExchangeProducerService } from './direct-exchange.producer.service';
+import { QueueTestConfigDto } from './dtos/queue-test-config.dto';
 
 @Injectable()
 export class DirectExchangeService {
@@ -8,7 +9,7 @@ export class DirectExchangeService {
 
   constructor(private readonly producer: DirectExchangeProducerService) {}
 
-  async fillupQueue(): Promise<void> {
+  async fillupQueue(queueTestConfigDto: QueueTestConfigDto): Promise<void> {
     try {
 
       for (let i = 0; i < 20; i++) {
