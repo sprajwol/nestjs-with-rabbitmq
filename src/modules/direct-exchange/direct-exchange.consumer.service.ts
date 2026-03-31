@@ -24,12 +24,12 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     this.rabbitmqDirectExchangeQueueName = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_QUEUE_NAME');
     this.rabbitmqDirectRoutingKey = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_ROUTING_KEY');
   }
-    
+
   protected async setupChannel(channel: ConfirmChannel): Promise<void> {
     try {
       // Dead Letter Exchange(DLX) and Dead Letter Queue(DLQ) setup for handling failed messages in separate queue.
-      const dlxName =  `${this.rabbitmqDirectExchangeName}.dlx`;
-      const dlqName =  `${this.rabbitmqDirectExchangeQueueName}.dlq`;
+      const dlxName = `${this.rabbitmqDirectExchangeName}.dlx`;
+      const dlqName = `${this.rabbitmqDirectExchangeQueueName}.dlq`;
       await channel.assertExchange(dlxName, 'direct', { durable: true });
       await channel.assertQueue(dlqName, { durable: true });
       await channel.bindQueue(dlqName, dlxName, this.rabbitmqDirectRoutingKey);
@@ -73,7 +73,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
   }
 
   private async handleProcessingLogic(msgContent: QueuePayloadInterface, msg: ConsumeMessage) {
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    // await new Promise(resolve => setTimeout(resolve, 10000));
   }
 
   protected async handleExhaustedRetries<QueuePayloadInterface>(

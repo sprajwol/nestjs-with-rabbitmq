@@ -85,20 +85,39 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
 
       this.logger.log(`Message with ID: ${messageId} acknowledged successfully.`);
     } catch (error) {
-      this.logger.error(`Mesage Consuming Failed: ${messageId}. Error: ${error}`);
+      this.logger.error(`Mesage Consuming Failed. ID: ${messageId}. Error: ${error}`);
 
-      channel.nack(msg, false, true);
+      // const headers = msg.properties.headers;
+      // const deathHeader = headers['x-deeath']?.[0];
+      // const retryCount = deathHeader ? deathHeader.count : 0;
+      // const maxRetries = 5;
+
+      // if (retryCount < 5) {
+      //   this.logger.warn(`Retrying message with ID: ${messageId}. Retry Attempt: ${retryCount + 1} / ${maxRetries}.`);
+      //   channel.nack(msg, false, true);
+      // } else {
+      //   this.logger.warn(`Retry attempts exhausted. Message with ID: ${messageId} will be moved to the DLQ.`);
+
+      //   // try {
+      //   //   await this.handleExhaustedRetries(msgContent, msg, error);
+      //   // } catch (error) {
+
+      //   // }
+
+      //   channel.nack(msg, false, false);
+      // }
+
     }
   }
 
   protected async consumeFromQueue<T>(
     channel: ConfirmChannel,
     queueName: string,
-    onMessage: (data: T, raw: ConsumeMessage) => Promise<void>,
+    onMessage: (msgContent: T, msg: ConsumeMessage) => Promise<void>,
   ) {
     return await channel.consume(
       queueName,
-      (msg) => this.consume(msg, channel, onMessage),
+      (msg) => this.consume<T>(msg, channel, onMessage),
       { onCancel: (msg) => this.handleConsumerCancel(msg.consumerTag) },
     );
   }
