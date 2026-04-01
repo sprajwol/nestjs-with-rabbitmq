@@ -61,7 +61,7 @@ export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDest
   // 'abstract' keyword forces the child class to implement this method, ensuring that the necessary channel is properly setup up for each child instance producer to properly function.
   protected abstract setupChannel(channel: ConfirmChannel): Promise<void>;
 
-  protected async publishToQueue<T>(message: T, messageId: string, exchangeName: string,  routingKey: string) {
+  protected async publishToQueue<T>(message: T, messageId: string, exchangeName: string, routingKey: string) {
     if (!this.connection.isConnected()) {
       this.logger.error(`Cannot publish message. RabbitMQ is  not connected.`);
 
@@ -70,7 +70,8 @@ export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDest
 
     const timestamp = Date.now();
     try {
-      const buffer = Buffer.from(JSON.stringify(message));
+      // const buffer = Buffer.from(JSON.stringify(message));
+
       //  `persistent: true` makes the message persistent(saved to disk) if true or non-persistent(stored to memory) if false.
       //  Persistent messages survive broker(rabbitmq) restarts.
       //  Needs 'exchange' and 'queue' also to be durable to ensure message persistence.
@@ -84,11 +85,11 @@ export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDest
         mandatory: true,
         contentType: 'application/json',
       };
-      
+
       await this.channelWrapper.publish(
         exchangeName,
         routingKey,
-        buffer,
+        message,
         publishOptions,
       );
 

@@ -73,6 +73,10 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
   }
 
   private async handleProcessingLogic(msgContent: QueuePayloadInterface, msg: ConsumeMessage) {
+    console.log("handleProcessingLogic msgContent == ", typeof msgContent);
+    console.log("handleProcessingLogic msg == ", typeof msg);
+    console.log("handleProcessingLogic msgContent == ", msgContent);
+    console.log("handleProcessingLogic msg == ", msg);
     // await new Promise(resolve => setTimeout(resolve, 10000));
   }
 

@@ -5,6 +5,7 @@ import {
 } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
 import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
+import { QueuePayloadDto } from 'src/modules/direct-exchange/dtos/queue-payload.dto';
 
 export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   protected channelWrapper: ChannelWrapper;
@@ -67,7 +68,7 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     if (!msg) return;
 
     const { messageId, timestamp } = msg.properties;
-    const  currentTimestamp = Date.now();
+    const currentTimestamp = Date.now();
     let msgContent: T | undefined;
 
     try {
@@ -77,7 +78,7 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
       // However, the type of `msg.content` is still `Buffer` in the type definitions, so casting it to `unknown` first allows to then cast it to the expected type `T` that the onMessage handler function will receive.
       // This provides type safety and autocompletion for the message content. 
       msgContent = msg.content as unknown as T;
-      
+
       // Excecuting the actual message handler function that handles the logic for processing the message from the queue passed in as a parameter from the child consumer class.
       await onMessage(msgContent, msg);
 
