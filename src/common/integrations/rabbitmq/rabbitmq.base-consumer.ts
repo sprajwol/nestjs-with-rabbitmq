@@ -5,7 +5,7 @@ import {
 } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
 import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
-import { QueuePayloadDto } from 'src/modules/direct-exchange/dtos/queue-payload.dto';
+import { ValidationError } from 'class-validator';
 
 export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   protected channelWrapper: ChannelWrapper;
@@ -74,10 +74,7 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     try {
       this.logger.log(`Received message with ID: ${messageId}, Timestamp: ${timestamp}, Current Timestamp: ${currentTimestamp}, Delay: ${currentTimestamp - timestamp}ms.`);
 
-      // Since  `json: true` is set in the channelWrapper options, the message content is automatically parsed from a Buffer to a JS object.
-      // However, the type of `msg.content` is still `Buffer` in the type definitions, so casting it to `unknown` first allows to then cast it to the expected type `T` that the onMessage handler function will receive.
-      // This provides type safety and autocompletion for the message content. 
-      msgContent = msg.content as unknown as T;
+      msgContent = JSON.parse(msg.content.toString()) as T;
 
       // Excecuting the actual message handler function that handles the logic for processing the message from the queue passed in as a parameter from the child consumer class.
       await onMessage(msgContent, msg);
@@ -86,12 +83,25 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
 
       this.logger.log(`Message with ID: ${messageId} acknowledged successfully.`);
     } catch (error) {
-      this.logger.error(`Mesage Consuming Failed. ID: ${messageId}. Error: ${error}`);
+      this.logger.error(`Message Consuming Failed. ID: ${messageId}.`);
 
-      // const headers = msg.properties.headers;
-      // const deathHeader = headers['x-deeath']?.[0];
-      // const retryCount = deathHeader ? deathHeader.count : 0;
-      // const maxRetries = 5;
+      if ((!msgContent) || (Array.isArray(error) && error.every(err => err instanceof ValidationError))) {
+        this.logger.error(`Message content is malformed/unparseable/undefined. Message will be moved to DLQ. ID: ${messageId}. Error: ${error}.`);
+
+        try {
+          await this.handleExhaustedRetries(msgContent, msg, error);
+        } catch (dbError) {
+          this.logger.fatal(`Failed to execute handleExhaustedRetries for message ID: ${messageId}. Error: ${dbError}.`);
+        }
+
+        channel.nack(msg, false, false);
+        return;
+      }
+
+      const headers = msg.properties.headers;
+      const deathHeader = headers['x-deeath']?.[0];
+      const retryCount = deathHeader ? deathHeader.count : 0;
+      const maxRetries = 5;
 
       // if (retryCount < 5) {
       //   this.logger.warn(`Retrying message with ID: ${messageId}. Retry Attempt: ${retryCount + 1} / ${maxRetries}.`);
