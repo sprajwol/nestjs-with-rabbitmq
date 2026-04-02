@@ -1,10 +1,12 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { type AmqpConnectionManager } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
-import { RabbitmqBaseConsumer } from "src/common/integrations/rabbitmq/rabbitmq.base-consumer";
-import { RABBITMQ_CONNECTION } from "src/common/integrations/rabbitmq/rabbitmq.constants";
-import { QueuePayloadInterface } from "./interfaces/queue-payload.interface";
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
+import { RabbitmqBaseConsumer } from 'src/common/integrations/rabbitmq/rabbitmq.base-consumer';
+import { RABBITMQ_CONNECTION } from 'src/common/integrations/rabbitmq/rabbitmq.constants';
+import { QueuePayloadDto } from './dtos/queue-payload.dto';
 
 @Injectable()
 export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
@@ -36,23 +38,25 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
 
       // Main exchange and queue setup with dead letter configuration.
       await channel.assertExchange(this.rabbitmqDirectExchangeName, 'direct', { durable: true });
-      await channel.assertQueue(
+      await channel.assertQueue(this.rabbitmqDirectExchangeQueueName, {
+        durable: true,
+        arguments: {
+          'x-dead-letter-exchange': dlxName,
+          'x-dead-letter-routing-key': this.rabbitmqDirectRoutingKey,
+        },
+      });
+      await channel.bindQueue(
         this.rabbitmqDirectExchangeQueueName,
-        {
-          durable: true,
-          arguments: {
-            'x-dead-letter-exchange': dlxName,
-            'x-dead-letter-routing-key': this.rabbitmqDirectRoutingKey,
-          }
-        });
-      await channel.bindQueue(this.rabbitmqDirectExchangeQueueName, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
+        this.rabbitmqDirectExchangeName,
+        this.rabbitmqDirectRoutingKey,
+      );
 
       await channel.prefetch(1);
 
-      await this.consumeFromQueue<QueuePayloadInterface>(
+      await this.consumeFromQueue<QueuePayloadDto>(
         channel,
         this.rabbitmqDirectExchangeQueueName,
-        (msgContent, msg) => this.handleProcessingLogic(msgContent, msg)
+        (msgContent, msg) => this.handleProcessingLogic(msgContent, msg),
       );
 
       this.logger.log(
@@ -72,17 +76,29 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     }
   }
 
-  private async handleProcessingLogic(msgContent: QueuePayloadInterface, msg: ConsumeMessage) {
-    console.log("handleProcessingLogic msgContent == ", typeof msgContent);
-    console.log("handleProcessingLogic msg == ", typeof msg);
-    console.log("handleProcessingLogic msgContent == ", msgContent);
-    console.log("handleProcessingLogic msg == ", msg);
-    // await new Promise(resolve => setTimeout(resolve, 10000));
+  private async handleProcessingLogic(
+    msgContent: QueuePayloadDto,
+    msg: ConsumeMessage,
+  ) {
+    const realDto = plainToInstance(QueuePayloadDto, msgContent);
+    await validateOrReject(realDto);
+
+    try {
+      // await new Promise(resolve => setTimeout(resolve, 10000));
+
+      throw new Error(
+        `Simulated processing error for messageId: ${msg.properties.messageId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error processing with ID: ${msgContent.id}, messageId: ${msg.properties.messageId}, Error: ${error}`,
+      );
+    }
   }
 
-  protected async handleExhaustedRetries<QueuePayloadInterface>(
-    msgContent: QueuePayloadInterface,
+  protected async handleExhaustedRetries<QueuePayloadDto>(
+    msgContent: QueuePayloadDto,
     msg: ConsumeMessage,
-    error: Error
+    error: Error,
   ) {}
 }

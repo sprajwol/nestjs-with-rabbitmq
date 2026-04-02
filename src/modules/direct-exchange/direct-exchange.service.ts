@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { DirectExchangeProducerService } from './direct-exchange.producer.service';
+import { QueuePayloadDto } from './dtos/queue-payload.dto';
 import { QueueTestConfigDto } from './dtos/queue-test-config.dto';
 
 @Injectable()
@@ -14,8 +15,8 @@ export class DirectExchangeService {
 
       for (let i = 0; i < queueTestConfigDto.numberOfMessages; i++) {
         const messageId = uuidv7();
-        const message = {
-          id: i,
+        const message: QueuePayloadDto = {
+          id: i.toString(),
           type: `direct-excchange-message${i}`,
           content: `meessage for queue ${i}`,
         };

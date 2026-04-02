@@ -4,7 +4,7 @@ import { type AmqpConnectionManager } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, Options } from 'amqplib';
 import { RabbitmqBaseProducer } from 'src/common/integrations/rabbitmq/rabbitmq.base-producer';
 import { RABBITMQ_CONNECTION } from 'src/common/integrations/rabbitmq/rabbitmq.constants';
-import { QueuePayloadInterface } from './interfaces/queue-payload.interface';
+import { QueuePayloadDto } from './dtos/queue-payload.dto';
 
 @Injectable()
 export class DirectExchangeProducerService extends RabbitmqBaseProducer {
@@ -28,8 +28,8 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
   protected async setupChannel(channel: ConfirmChannel): Promise<void> {
     try {
       // Dead Letter Exchange(DLX) and Dead Letter Queue(DLQ) setup for handling failed messages in separate queue.
-      const dlxName =  `${this.rabbitmqDirectExchangeName}.dlx`;
-      const dlqName =  `${this.rabbitmqDirectExchangeQueueName}.dlq`;
+      const dlxName = `${this.rabbitmqDirectExchangeName}.dlx`;
+      const dlqName = `${this.rabbitmqDirectExchangeQueueName}.dlq`;
       await channel.assertExchange(dlxName, 'direct', { durable: true });
       await channel.assertQueue(dlqName, { durable: true });
       await channel.bindQueue(dlqName, dlxName, this.rabbitmqDirectRoutingKey);
@@ -64,8 +64,8 @@ export class DirectExchangeProducerService extends RabbitmqBaseProducer {
     }
   }
 
-  async processMessage(message: QueuePayloadInterface, messageId: string) {
-    return await this.publishToQueue<QueuePayloadInterface>(message, messageId, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
+  async processMessage(message: QueuePayloadDto, messageId: string) {
+    return await this.publishToQueue<QueuePayloadDto>(message, messageId, this.rabbitmqDirectExchangeName, this.rabbitmqDirectRoutingKey);
   }
 
 }
