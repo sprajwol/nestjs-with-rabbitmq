@@ -64,7 +64,7 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   protected async consume<T>(
     msg: ConsumeMessage | null,
     channel: ConfirmChannel,
-    onMessage: (msgContent: T, msg: ConsumeMessage) => Promise<void>
+    onMessage: (msgContent: T, msg: ConsumeMessage) => Promise<void>,
   ): Promise<void> {
     if (!msg) return;
 
@@ -118,7 +118,6 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
 
       //   channel.nack(msg, false, false);
       // }
-
     }
   }
 

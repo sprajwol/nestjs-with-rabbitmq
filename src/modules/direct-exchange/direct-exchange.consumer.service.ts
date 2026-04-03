@@ -86,9 +86,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     try {
       // await new Promise(resolve => setTimeout(resolve, 10000));
 
-      throw new Error(
-        `Simulated processing error for messageId: ${msg.properties.messageId}`,
-      );
+      throw new Error(`Simulated processing error for messageId: ${msg.properties.messageId}`);
     } catch (error) {
       this.logger.error(
         `Error processing with ID: ${msgContent.id}, messageId: ${msg.properties.messageId}, Error: ${error}`,
