@@ -48,6 +48,12 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     this.channelWrapper.on('connect', () => {
       this.logger.warn(`Consumer Channel is connected and active.`);
     });
+
+    // await new Promise<void>((resolve, reject) => {
+    //   this.channelWrapper.once('connect', () => resolve());
+
+    //   this.channelWrapper.once('error', (err) => reject(err));
+    // });
   }
 
   // Child classes must implement the setupChannel method to create and configure the channel as needed (E.g. asserting exchanges, queues, bindings, prefetch, consume etc.)
