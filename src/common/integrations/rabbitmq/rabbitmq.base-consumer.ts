@@ -107,10 +107,10 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
         return;
       }
 
-      const headers = msg.properties.headers;
-      const deathHeader = headers['x-deeath']?.[0];
-      const retryCount = deathHeader ? deathHeader.count : 0;
-      const maxRetries = 5;
+      // const headers = msg.properties.headers;
+      // const deathHeader = headers['x-deeath']?.[0];
+      // const retryCount = deathHeader ? deathHeader.count : 0;
+      // const maxRetries = 5;
 
       // if (retryCount < 5) {
       //   this.logger.warn(`Retrying message with ID: ${messageId}. Retry Attempt: ${retryCount + 1} / ${maxRetries}.`);
