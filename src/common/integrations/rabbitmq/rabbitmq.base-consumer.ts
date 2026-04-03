@@ -7,7 +7,7 @@ import { ValidationError } from 'class-validator';
 export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   protected channelWrapper: ChannelWrapper;
   // Each child class must provide its own logger instance with the correct context name.
-  protected readonly logger: Logger;
+  protected readonly abstract logger: Logger;
 
   constructor(
     @Inject(RABBITMQ_CONNECTION)

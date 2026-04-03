@@ -9,7 +9,7 @@ import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
 export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDestroy {
   protected channelWrapper: ChannelWrapper;
   // Each child class must provide its own logger instance with the correct context name.
-  protected readonly logger: Logger;
+  protected readonly abstract logger: Logger;
 
   constructor(
     @Inject(RABBITMQ_CONNECTION) protected readonly connection: AmqpConnectionManager,
