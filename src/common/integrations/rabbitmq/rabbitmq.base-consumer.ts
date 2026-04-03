@@ -1,8 +1,5 @@
 import { Inject, Logger, OnModuleInit } from '@nestjs/common';
-import {
-  type AmqpConnectionManager,
-  ChannelWrapper,
-} from 'amqp-connection-manager';
+import { type AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
 import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
 import { ValidationError } from 'class-validator';
@@ -58,7 +55,11 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   protected abstract setupChannel(channel: ConfirmChannel): Promise<void>;
 
   // Child classes must implement the handleExhaustedRetries method to provide the logic for handling messages that have exhausted their retry attempts and are about to be moved to the DLQ.
-  protected abstract handleExhaustedRetries<T>(msgContent: T, msg: ConsumeMessage, error: Error): Promise<void>;
+  protected abstract handleExhaustedRetries<T>(
+    msgContent: T,
+    msg: ConsumeMessage,
+    error: Error,
+  ): Promise<void>;
 
   protected async consume<T>(
     msg: ConsumeMessage | null,
