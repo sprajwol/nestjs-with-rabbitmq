@@ -72,7 +72,10 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     channel: ConfirmChannel,
     onMessage: (msgContent: T, msg: ConsumeMessage) => Promise<void>,
   ): Promise<void> {
-    if (!msg) return;
+    if (!msg) {
+      this.logger.error(`Consumer was cancelled by the  broker.`);
+      return;
+    }
 
     const { messageId, timestamp } = msg.properties;
     const currentTimestamp = Date.now();
@@ -135,7 +138,6 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     return await channel.consume(
       queueName,
       (msg) => this.consume<T>(msg, channel, onMessage),
-      { onCancel: (msg) => this.handleConsumerCancel(msg.consumerTag) },
     );
   }
 
