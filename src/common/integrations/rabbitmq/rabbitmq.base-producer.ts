@@ -7,7 +7,7 @@ import { Channel, ConfirmChannel, Options } from 'amqplib';
 import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
 
 export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDestroy {
-  protected channelWrapper: ChannelWrapper;
+  protected channelWrapper!: ChannelWrapper;
   // Each child class must provide its own logger instance with the correct context name.
   protected readonly abstract logger: Logger;
 

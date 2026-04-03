@@ -6,5 +6,5 @@ export class QueueTestConfigDto {
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
-  numberOfMessages: number;
+  numberOfMessages!: number;
 }
