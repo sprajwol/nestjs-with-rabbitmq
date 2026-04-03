@@ -79,7 +79,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
   private async handleProcessingLogic(
     msgContent: QueuePayloadDto,
     msg: ConsumeMessage,
-  ) {
+  ): Promise<void> {
     const realDto = plainToInstance(QueuePayloadDto, msgContent);
     await validateOrReject(realDto);
 
