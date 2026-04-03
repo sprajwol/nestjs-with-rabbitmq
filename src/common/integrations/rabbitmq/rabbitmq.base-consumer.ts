@@ -72,6 +72,7 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
     onMessage: (msgContent: T, msg: ConsumeMessage) => Promise<void>,
   ): Promise<void> {
     if (!msg) {
+      // Error to raise when consumer gets deleted in the middle of processing.
       this.logger.error(`Consumer was cancelled by the  broker.`);
       return;
     }
