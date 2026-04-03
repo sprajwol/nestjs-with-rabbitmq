@@ -1,12 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import { type AmqpConnectionManager } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
-import { RabbitmqBaseConsumer } from 'src/common/integrations/rabbitmq/rabbitmq.base-consumer';
-import { RABBITMQ_CONNECTION } from 'src/common/integrations/rabbitmq/rabbitmq.constants';
-import { QueuePayloadDto } from './dtos/queue-payload.dto';
+
+import { RabbitmqBaseConsumer } from '#src/common/integrations/rabbitmq/rabbitmq.base-consumer';
+import { RABBITMQ_CONNECTION } from '#src/common/integrations/rabbitmq/rabbitmq.constants';
+import { QueuePayloadDto } from '#src/modules/direct-exchange/dtos/queue-payload.dto';
 
 @Injectable()
 export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
