@@ -1,8 +1,11 @@
 import { Inject, Logger, OnModuleInit } from '@nestjs/common';
+
 import { type AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, ConsumeMessage } from 'amqplib';
-import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
 import { ValidationError } from 'class-validator';
+
+import { RABBITMQ_CONNECTION } from '#src/common/integrations/rabbitmq/rabbitmq.constants';
+import { waitConnection } from '#src/common/integrations/rabbitmq/utils/wait-connection';
 
 export abstract class RabbitmqBaseConsumer implements OnModuleInit {
   protected channelWrapper!: ChannelWrapper;
@@ -49,11 +52,7 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
       this.logger.warn(`Consumer Channel is connected and active.`);
     });
 
-    // await new Promise<void>((resolve, reject) => {
-    //   this.channelWrapper.once('connect', () => resolve());
-
-    //   this.channelWrapper.once('error', (err) => reject(err));
-    // });
+    await waitConnection(this.channelWrapper);
   }
 
   // Child classes must implement the setupChannel method to create and configure the channel as needed (E.g. asserting exchanges, queues, bindings, prefetch, consume etc.)

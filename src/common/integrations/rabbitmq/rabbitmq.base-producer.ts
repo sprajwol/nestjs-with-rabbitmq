@@ -1,10 +1,10 @@
 import { Inject, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import {
-  type AmqpConnectionManager,
-  ChannelWrapper,
-} from 'amqp-connection-manager';
+
+import { type AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import { Channel, ConfirmChannel, Options } from 'amqplib';
-import { RABBITMQ_CONNECTION } from './rabbitmq.constants';
+
+import { RABBITMQ_CONNECTION } from '#src/common/integrations/rabbitmq/rabbitmq.constants';
+import { waitConnection } from '#src/common/integrations/rabbitmq/utils/wait-connection';
 
 export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDestroy {
   protected channelWrapper!: ChannelWrapper;
@@ -39,11 +39,11 @@ export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDest
     });
 
     this.channelWrapper.on('error', (error) => {
-      this.logger.error(`Channel error. ${error}`);
+      this.logger.error(`Producer Channel error. ${error}`);
     });
 
     this.channelWrapper.on('close', () => {
-      this.logger.warn(`Channel closed.`);
+      this.logger.warn(`Producer Channel closed.`);
     });
 
     this.channelWrapper.on('return', (msg) => {
@@ -55,6 +55,8 @@ export abstract class RabbitmqBaseProducer implements OnModuleInit, OnModuleDest
         `Channel drained. Backpressure relieved, can resume sending messages.`,
       );
     });
+    
+    await waitConnection(this.channelWrapper);
   }
 
   // Child classes must implement the setupChannel method to create and configure the channel as needed (E.g. asserting exchanges, queues, bindings, etc.)
