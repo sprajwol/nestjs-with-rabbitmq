@@ -77,17 +77,17 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
 
       await this.consumeFromQueue<QueuePayloadDto>(
         channel,
-        this.rabbitmqDirectExchangeQueueName,
+        this.main_queue,
         (msgContent, msg) => this.handleProcessingLogic(msgContent, msg),
       );
 
       this.logger.log(
         `
           Consumer Listening on Queue:
-          Exchange '${this.rabbitmqDirectExchangeName}',
+          Exchange '${this.main_exchange}',
           Type: 'direct',
-          Queue: '${this.rabbitmqDirectExchangeQueueName}',
-          RoutingKey: '${this.rabbitmqDirectRoutingKey}',
+          Queue: '${this.main_queue}',
+          RoutingKey: '${this.main_routing_key}',
         `,
       );
     } catch (error) {
@@ -106,7 +106,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     await validateOrReject(realDto);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      await new Promise((resolve) => setTimeout(resolve, 10000));
     } catch (error) {
       this.logger.error(
         `Error processing with ID: ${msgContent.id}, messageId: ${msg.properties.messageId}, Error: ${error}`,
