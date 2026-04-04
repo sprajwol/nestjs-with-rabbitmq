@@ -86,14 +86,14 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     await validateOrReject(realDto);
 
     try {
-      // await new Promise(resolve => setTimeout(resolve, 10000));
-
-      throw new Error(`Simulated processing error for messageId: ${msg.properties.messageId}`);
+      await new Promise(resolve => setTimeout(resolve, 10000));
     } catch (error) {
       this.logger.error(
         `Error processing with ID: ${msgContent.id}, messageId: ${msg.properties.messageId}, Error: ${error}`,
       );
     }
+
+    throw new Error(`Simulated processing error for messageId: ${msg.properties.messageId}`);
   }
 
   protected async handleExhaustedRetries<QueuePayloadDto>(
