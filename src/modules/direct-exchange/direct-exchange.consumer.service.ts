@@ -14,9 +14,15 @@ import { QueuePayloadDto } from '#src/modules/direct-exchange/dtos/queue-payload
 export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
   protected readonly logger = new Logger(this.constructor.name);
 
-  private readonly rabbitmqDirectExchangeName: string; // RabbitMQ rabbitmqDirectExchangeName
-  private readonly rabbitmqDirectExchangeQueueName: string; // RabbitMQ rabbitmqDirectExchangeQueueName
-  private readonly rabbitmqDirectRoutingKey: string; // RabbitMQ rabbitmqDirectRoutingKey
+  private readonly main_exchange: string; // RabbitMQ rabbitmqDirectExchangeName
+  private readonly main_queue: string; // RabbitMQ rabbitmqDirectExchangeQueueName
+  private readonly main_routing_key: string; // RabbitMQ rabbitmqDirectRoutingKey
+
+  private readonly retry_queue: string; // RabbitMQ retry queue name
+  private readonly retry_routing_key: string; // RabbitMQ retry routing key
+
+  private readonly parking_queue: string; // RabbitMQ parking queue name
+  private readonly parking_routing_key: string; // RabbitMQ parking routing key
 
   constructor(
     @Inject(RABBITMQ_CONNECTION) connection: AmqpConnectionManager,
@@ -24,9 +30,16 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
   ) {
     super(connection);
 
-    this.rabbitmqDirectExchangeName = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_NAME');
-    this.rabbitmqDirectExchangeQueueName = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_QUEUE_NAME');
-    this.rabbitmqDirectRoutingKey = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_ROUTING_KEY');
+    this.main_exchange = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_NAME');
+
+    this.main_queue = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_QUEUE_NAME');
+    this.main_routing_key = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_ROUTING_KEY');
+
+    this.retry_queue = `${this.main_queue}_retry`;
+    this.retry_routing_key = `${this.main_routing_key}_retry`;
+
+    this.parking_queue = `${this.main_queue}_parking`;
+    this.parking_routing_key = `${this.main_routing_key}_retry`;
   }
 
   protected async setupChannel(channel: ConfirmChannel): Promise<void> {
