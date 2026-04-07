@@ -2,11 +2,12 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { type AmqpConnectionManager } from 'amqp-connection-manager';
-import { Channel, ConfirmChannel, Options } from 'amqplib';
+import { Channel, ConfirmChannel } from 'amqplib';
 
 import { RabbitmqBaseProducer } from '#src/common/integrations/rabbitmq/rabbitmq.base-producer';
 import { RABBITMQ_CONNECTION } from '#src/common/integrations/rabbitmq/rabbitmq.constants';
 import { QueuePayloadDto } from '#src/modules/direct-exchange/dtos/queue-payload.dto';
+
 @Injectable()
 export class DirectExchangeProducerService extends RabbitmqBaseProducer {
   protected readonly logger = new Logger(this.constructor.name);
