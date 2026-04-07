@@ -39,7 +39,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     this.retry_routing_key = `${this.main_routing_key}_retry`;
 
     this.parking_queue = `${this.main_queue}_parking`;
-    this.parking_routing_key = `${this.main_routing_key}_retry`;
+    this.parking_routing_key = `${this.main_routing_key}_parking`;
   }
 
   protected async setupChannel(channel: ConfirmChannel): Promise<void> {
