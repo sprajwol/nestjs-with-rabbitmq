@@ -18,11 +18,8 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
   private readonly main_queue: string; // RabbitMQ rabbitmqDirectExchangeQueueName
   private readonly main_routing_key: string; // RabbitMQ rabbitmqDirectRoutingKey
 
-  private readonly retry_queue: string; // RabbitMQ retry queue name
-  private readonly retry_routing_key: string; // RabbitMQ retry routing key
-
-  private readonly parking_queue: string; // RabbitMQ parking queue name
-  private readonly parking_routing_key: string; // RabbitMQ parking routing key
+  private readonly dlq_queue: string; // RabbitMQ dlq queue name
+  private readonly dlq_routing_key: string; // RabbitMQ dlq routing key
 
   constructor(
     @Inject(RABBITMQ_CONNECTION) connection: AmqpConnectionManager,
@@ -35,11 +32,8 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
     this.main_queue = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_EXCHANGE_QUEUE_NAME');
     this.main_routing_key = this.configService.getOrThrow<string>('RABBITMQ_DIRECT_ROUTING_KEY');
 
-    this.retry_queue = `${this.main_queue}_retry`;
-    this.retry_routing_key = `${this.main_routing_key}_retry`;
-
-    this.parking_queue = `${this.main_queue}_parking`;
-    this.parking_routing_key = `${this.main_routing_key}_parking`;
+    this.dlq_queue = `${this.main_queue}.dlq`;
+    this.dlq_routing_key = `${this.main_routing_key}.dlq`;
   }
 
   protected async setupChannel(channel: ConfirmChannel): Promise<void> {
@@ -52,11 +46,11 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
         durable: true,
         arguments: {
           'x-dead-letter-exchange': this.main_exchange,
-          'x-dead-letter-routing-key': this.retry_routing_key,
+          'x-dead-letter-routing-key': this.dlq_routing_key,
         },
       });
 
-      await channel.assertQueue(this.retry_queue, {
+      await channel.assertQueue(this.dlq_queue, {
         durable: true,
         arguments: {
           'x-message-ttl': 10000,
@@ -65,13 +59,8 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
         },
       });
 
-      await channel.assertQueue(this.parking_queue, {
-        durable: true,
-      });
-
       await channel.bindQueue(this.main_queue, this.main_exchange, this.main_routing_key);
-      await channel.bindQueue(this.retry_queue, this.main_exchange, `${this.retry_routing_key}`);
-      await channel.bindQueue(this.parking_queue, this.main_exchange, `${this.parking_routing_key}`);
+      await channel.bindQueue(this.dlq_queue, this.main_exchange, `${this.dlq_routing_key}`);
 
       await channel.prefetch(1);
 

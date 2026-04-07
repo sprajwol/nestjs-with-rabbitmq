@@ -94,12 +94,14 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
       this.logger.log(`Message with ID: ${messageId} acknowledged successfully.`);
     } catch (error) {
       this.logger.error(`Message Consuming Failed. ID: ${messageId}.`);
+      console.log("String(error) ==>", String(error))
+
 
       if ((!msgContent) || (Array.isArray(error) && error.every(err => err instanceof ValidationError))) {
         this.logger.error(`Message content is malformed/unparseable/undefined. Message will be moved to DLQ. ID: ${messageId}. Error: ${error}.`);
 
         try {
-          await this.handleExhaustedRetries(msgContent, msg, error);
+          // await this.handleExhaustedRetries(msgContent, msg, error);
         } catch (dbError) {
           this.logger.fatal(`Failed to execute handleExhaustedRetries for message ID: ${messageId}. Error: ${dbError}.`);
         }
@@ -107,26 +109,6 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
         channel.nack(msg, false, false);
         return;
       }
-
-      // const headers = msg.properties.headers;
-      // const deathHeader = headers['x-deeath']?.[0];
-      // const retryCount = deathHeader ? deathHeader.count : 0;
-      // const maxRetries = 5;
-
-      // if (retryCount < 5) {
-      //   this.logger.warn(`Retrying message with ID: ${messageId}. Retry Attempt: ${retryCount + 1} / ${maxRetries}.`);
-      //   channel.nack(msg, false, true);
-      // } else {
-      //   this.logger.warn(`Retry attempts exhausted. Message with ID: ${messageId} will be moved to the DLQ.`);
-
-      //   // try {
-      //   //   await this.handleExhaustedRetries(msgContent, msg, error);
-      //   // } catch (error) {
-
-      //   // }
-
-      //   channel.nack(msg, false, false);
-      // }
     }
   }
 
