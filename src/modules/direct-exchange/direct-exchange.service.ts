@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
-import { DirectExchangeProducerService } from './direct-exchange.producer.service';
-import { QueuePayloadDto } from './dtos/queue-payload.dto';
-import { QueueTestConfigDto } from './dtos/queue-test-config.dto';
+
+import { DirectExchangeProducerService } from '#src/modules/direct-exchange/direct-exchange.producer.service';
+import { QueuePayloadDto } from '#src/modules/direct-exchange/dtos/queue-payload.dto';
+import { QueueTestConfigDto } from '#src/modules/direct-exchange/dtos/queue-test-config.dto';
 
 @Injectable()
 export class DirectExchangeService {

@@ -1,7 +1,8 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DirectExchangeService } from './direct-exchange.service';
-import { QueueTestConfigDto } from './dtos/queue-test-config.dto';
+
+import { DirectExchangeService } from '#src/modules/direct-exchange/direct-exchange.service';
+import { QueueTestConfigDto } from '#src/modules/direct-exchange/dtos/queue-test-config.dto';
 
 @ApiTags('Direct Exchange')
 @Controller('direct-exchange')
