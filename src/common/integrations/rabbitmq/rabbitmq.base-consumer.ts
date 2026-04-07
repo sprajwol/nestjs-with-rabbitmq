@@ -109,6 +109,8 @@ export abstract class RabbitmqBaseConsumer implements OnModuleInit {
         channel.nack(msg, false, false);
         return;
       }
+      
+      channel.nack(msg, false, false);
     }
   }
 
