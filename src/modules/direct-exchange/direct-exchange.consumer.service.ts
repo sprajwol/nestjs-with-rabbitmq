@@ -101,7 +101,7 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
       );
     }
 
-    throw new Error(`Simulated processing error for messageId: ${msg.properties.messageId}`);
+    // throw new Error(`Simulated processing error for messageId: ${msg.properties.messageId}`);
   }
 
   protected async handleExhaustedRetries<QueuePayloadDto>(
