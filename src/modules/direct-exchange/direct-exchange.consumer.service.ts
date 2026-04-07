@@ -50,14 +50,13 @@ export class DirectExchangeConsumerService extends RabbitmqBaseConsumer {
         },
       });
 
-      await channel.assertQueue(this.dlq_queue, {
-        durable: true,
-        arguments: {
-          'x-message-ttl': 10000,
-          'x-dead-letter-exchange': this.main_exchange,
-          'x-dead-letter-routing-key': this.main_routing_key,
-        },
-      });
+      // for sending the message back to mainQueue after certain time
+      // arguments: {
+      //   'x-message-ttl': 10000,
+      //   'x-dead-letter-exchange': this.main_exchange,
+      //   'x-dead-letter-routing-key': this.main_routing_key,
+      // },
+      await channel.assertQueue(this.dlq_queue, { durable: true });
 
       await channel.bindQueue(this.main_queue, this.main_exchange, this.main_routing_key);
       await channel.bindQueue(this.dlq_queue, this.main_exchange, `${this.dlq_routing_key}`);
