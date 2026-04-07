@@ -18,7 +18,7 @@ export class DirectExchangeService {
         const messageId = uuidv7();
         const message: QueuePayloadDto = {
           id: i.toString(),
-          type: `direct-excchange-message${i}`,
+          type: `direct-exchange-message${i}`,
           content: `meessage for queue ${i}`,
         };
 
