@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumberString, IsString } from 'class-validator';
 
-export class QueuePayloadDto {
+export class OrderCreatedPayloadDto {
   @IsNotEmpty()
   @IsNumberString()
   id!: string;
