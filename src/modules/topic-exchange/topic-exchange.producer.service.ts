@@ -6,7 +6,6 @@ import { ConfirmChannel } from 'amqplib';
 
 import { RabbitmqBaseProducer } from '#src/common/integrations/rabbitmq/rabbitmq.base-producer';
 import { RABBITMQ_CONNECTION } from '#src/common/integrations/rabbitmq/rabbitmq.constants';
-import { QueuePayloadDto } from '#src/modules/topic-exchange/dtos/queue-payload.dto';
 
 @Injectable()
 export class TopicExchangeProducerService extends RabbitmqBaseProducer {
@@ -36,7 +35,7 @@ export class TopicExchangeProducerService extends RabbitmqBaseProducer {
     }
   }
 
-  async processMessage(message: QueuePayloadDto, messageId: string, routing_key: string) {
-    return await this.publishToQueue<QueuePayloadDto>(message, messageId, this.exchange, routing_key);
+  async processMessage<T>(message: T, messageId: string, routing_key: string) {
+    return await this.publishToQueue<T>(message, messageId, this.exchange, routing_key);
   }
 }
