@@ -4,7 +4,7 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TopicExchangeService } from '#src/modules/topic-exchange/topic-exchange.service';
 import { QueueTestConfigDto } from '#src/modules/topic-exchange/dtos/queue-test-config.dto';
 
-@ApiTags('Direct Exchange')
+@ApiTags('Topic Exchange')
 @Controller('topic-exchange')
 export class TopicExchangeController {
   protected readonly logger = new Logger(this.constructor.name);
