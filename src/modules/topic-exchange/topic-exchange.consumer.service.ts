@@ -6,9 +6,10 @@ import { ConfirmChannel, ConsumeMessage } from 'amqplib';
 
 import { RabbitmqBaseConsumer } from '#src/common/integrations/rabbitmq/rabbitmq.base-consumer';
 import { RABBITMQ_CONNECTION } from '#src/common/integrations/rabbitmq/rabbitmq.constants';
-import { QueuePayloadDto } from '#src/modules/topic-exchange/dtos/queue-payload.dto';
+import { OrderCreatedPayloadDto } from '#src/modules/topic-exchange/dtos/order-created-payload.dto';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
+import { OrderCancelledPayloadDto } from '#src/modules/topic-exchange/dtos/order-cancelled-payload.dto';
 
 @Injectable()
 export class TopicExchangeConsumerService extends RabbitmqBaseConsumer {
@@ -40,7 +41,7 @@ export class TopicExchangeConsumerService extends RabbitmqBaseConsumer {
 
       await channel.prefetch(1);
 
-      await this.consumeFromQueue<QueuePayloadDto>(channel, this.orders_queue, (msgContent, msg) =>
+      await this.consumeFromQueue<any>(channel, this.orders_queue, (msgContent, msg) =>
         this.handleProcessingLogic(msgContent, msg),
       );
 
@@ -60,15 +61,41 @@ export class TopicExchangeConsumerService extends RabbitmqBaseConsumer {
       throw error;
     }
   }
+  
+  private async validateTopicData(routingKey: string, msgContent: any) {
+    let schema: any;
+
+    if (routingKey === 'orders.created') schema = OrderCreatedPayloadDto;
+    else if (routingKey === 'orders.cancelled') schema = OrderCancelledPayloadDto;
+    else throw new Error(`Received routingKey with unmapped DTO: '${routingKey}'.`);
+
+    const instance = plainToInstance(schema, msgContent);
+    await validateOrReject(instance);
+
+    return instance;
+  }
 
   private async handleProcessingLogic(
-    msgContent: QueuePayloadDto,
+    msgContent: any,
     msg: ConsumeMessage,
   ): Promise<void> {
-    const realDto = plainToInstance(QueuePayloadDto, msgContent);
-    await validateOrReject(realDto);
+    const routingKey = msg.fields.routingKey;
+
+    await this.validateTopicData(routingKey, msgContent);
 
     try {
+      switch (routingKey) {
+        case 'orders.created':
+          console.log("Orders Created");
+          break;
+        case 'orders.cancelled':
+          console.log("Orders Cancelled");
+          break;
+        default:
+          console.log(`No specific topic defined for topic: ${routingKey}`);
+          break;
+      }
+      
       await new Promise((resolve) => setTimeout(resolve, 10000));
     } catch (error) {
       this.logger.error(

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { v7 as uuidv7 } from 'uuid';
 
-import { QueuePayloadDto } from '#src/modules/topic-exchange/dtos/queue-payload.dto';
+import { OrderCreatedPayloadDto } from '#src/modules/topic-exchange/dtos/order-created-payload.dto';
 import { QueueTestConfigDto } from '#src/modules/topic-exchange/dtos/queue-test-config.dto';
 import { TopicExchangeProducerService } from '#src/modules/topic-exchange/topic-exchange.producer.service';
 
@@ -17,13 +17,13 @@ export class TopicExchangeService {
 
       for (let i = 0; i < queueTestConfigDto.numberOfMessages; i++) {
         const messageId = uuidv7();
-        const message: QueuePayloadDto = {
+        const message: OrderCreatedPayloadDto = {
           id: i.toString(),
           type: `topic-exchange-message${i}`,
           content: `meessage for queue ${i}`,
         };
 
-        await this.producer.processMessage(message, messageId, "orders.created");
+        await this.producer.processMessage<OrderCreatedPayloadDto>(message, messageId, "orders.created");
       }
     } catch (error) {
       this.logger.error(`Error filling up the topic exchange queue: ${error}`);
